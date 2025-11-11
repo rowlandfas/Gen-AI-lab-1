@@ -1,0 +1,4 @@
+django==4.2
+psycopg2-binary==2.9.7
+python-dotenv==1.0.0
+openai==1.0.0 # optional; only needed if you use OpenAI integration
