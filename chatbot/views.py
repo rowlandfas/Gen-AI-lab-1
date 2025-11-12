@@ -1,8 +1,27 @@
 import os
 import json
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views import View
 from .models import Conversation, Message, UserContext
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", None)
+
+
+class Index(View):
+    """Simple class-based view for the home page or index."""
+    def get(self, request):
+        html_content = """
+        <html>
+            <head><title>Chatbot</title></head>
+            <body>
+                <h1>Welcome to the Chatbot</h1>
+                <p>Use the API endpoint <code>/api/chat/</code> to send messages.</p>
+            </body>
+        </html>
+        """
+        return HttpResponse(html_content)
+
 
 @csrf_exempt
 def chat_api(request):
@@ -31,7 +50,7 @@ def chat_api(request):
     # save bot message
     Message.objects.create(conversation=conv, role='bot', text=reply)
 
-    # update user context (very simple example: store last question)
+    # update user context (store last message)
     context['last_user_message'] = text
     uctx.context = context
     uctx.save()
@@ -63,7 +82,7 @@ def generate_reply(user_text, context):
         except Exception as e:
             return f"(AI error) Sorry, I couldn't reach the AI service: {e}"
     
-    # fallback: very simple rule-based reply
+    # fallback replies
     if 'hello' in user_text.lower():
         return "Hello! How can I help you today?"
     if '?' in user_text:
