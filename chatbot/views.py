@@ -9,18 +9,108 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", None)
 
 
 class Index(View):
-    """Simple class-based view for the home page or index."""
+    """Simple class-based view for the home page with chat input."""
     def get(self, request):
         html_content = """
         <html>
-            <head><title>Chatbot</title></head>
+            <head>
+                <title>Chatbot</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        background-color: #f0f2f5;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        margin: 0;
+                    }
+                    .chat-container {
+                        background: white;
+                        padding: 20px 30px;
+                        border-radius: 10px;
+                        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+                        width: 400px;
+                        max-width: 90%;
+                    }
+                    h1 {
+                        text-align: center;
+                        color: #333;
+                    }
+                    #chat-box {
+                        border: 1px solid #ccc;
+                        border-radius: 5px;
+                        padding: 10px;
+                        height: 200px;
+                        overflow-y: auto;
+                        margin-bottom: 10px;
+                        background-color: #fafafa;
+                    }
+                    input[type="text"] {
+                        width: 80%;
+                        padding: 8px;
+                        border-radius: 5px;
+                        border: 1px solid #ccc;
+                    }
+                    button {
+                        padding: 8px 12px;
+                        border-radius: 5px;
+                        border: none;
+                        background-color: #4CAF50;
+                        color: white;
+                        cursor: pointer;
+                    }
+                    button:hover {
+                        background-color: #45a049;
+                    }
+                    .message {
+                        margin: 5px 0;
+                    }
+                    .user { color: blue; }
+                    .bot { color: green; }
+                </style>
+            </head>
             <body>
-                <h1>Welcome to the Chatbot</h1>
-                <p>Use the API endpoint <code>/api/chat/</code> to send messages.</p>
+                <div class="chat-container">
+                    <h1>Welcome to the Chatbot</h1>
+                    <div id="chat-box"></div>
+                    <input type="text" id="user-input" placeholder="Type your message..." />
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+                <script>
+                    async function sendMessage() {
+                        const input = document.getElementById('user-input');
+                        const text = input.value.trim();
+                        if (!text) return;
+                        
+                        const chatBox = document.getElementById('chat-box');
+                        chatBox.innerHTML += '<div class="message user"><b>You:</b> ' + text + '</div>';
+                        input.value = '';
+
+                        try {
+                            const response = await fetch('/api/chat/', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({user_id: 'guest', message: text})
+                            });
+                            const data = await response.json();
+                            chatBox.innerHTML += '<div class="message bot"><b>Bot:</b> ' + data.reply + '</div>';
+                            chatBox.scrollTop = chatBox.scrollHeight;
+                        } catch (err) {
+                            chatBox.innerHTML += '<div class="message bot"><b>Bot:</b> Error contacting server.</div>';
+                        }
+                    }
+
+                    // Allow Enter key to send
+                    document.getElementById('user-input').addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') sendMessage();
+                    });
+                </script>
             </body>
         </html>
         """
         return HttpResponse(html_content)
+
 
 
 @csrf_exempt
