@@ -1,9 +1,9 @@
-FROM python:3.11-slim
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+FROM python:3.10-slim
+
+# Install netcat to wait for Postgres
+RUN apt-get update && apt-get install -y netcat-traditional && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /code
-COPY requirements.txt /code/
-RUN pip install --upgrade pip && pip install -r requirements.txt
-COPY . /code/
-RUN chmod +x /code/docker-entrypoint.sh
-ENTRYPOINT ["/code/docker-entrypoint.sh"]
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
