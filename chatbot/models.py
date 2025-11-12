@@ -26,8 +26,9 @@ class Message(models.Model):
 
 class UserContext(models.Model):
     user_id = models.CharField(max_length=200, unique=True)
-    context = JSONField(default=dict)  # store preferences, short-term memory
+    context = models.JSONField(default=dict)  # <- change here
     updated_at = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
         return f"Context for {self.user_id}"
