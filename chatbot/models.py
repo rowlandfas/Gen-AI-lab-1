@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField
 
 
 class Conversation(models.Model):
@@ -26,9 +25,8 @@ class Message(models.Model):
 
 class UserContext(models.Model):
     user_id = models.CharField(max_length=200, unique=True)
-    context = models.JSONField(default=dict)  # <- change here
+    context = models.JSONField(default=dict)  # ✅ built-in JSONField (correct)
     updated_at = models.DateTimeField(auto_now=True)
-
 
     def __str__(self):
         return f"Context for {self.user_id}"
